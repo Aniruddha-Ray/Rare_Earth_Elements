@@ -1,0 +1,14 @@
+jupyter
+numpy
+pandas
+scikit-learn
+tensorflow
+keras
+matplotlib
+seaborn
+torch
+torchvision
+torchaudio
+monai
+ipykernel
+xlrd
