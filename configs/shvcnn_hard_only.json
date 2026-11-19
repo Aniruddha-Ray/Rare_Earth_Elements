@@ -1,0 +1,6 @@
+{
+  "name": "shvcnn_hard_only",
+  "model": {"name": "shvcnn"},
+  "train": {"geo_lambda": 0.0},
+  "output_dir": "experiments/results"
+}

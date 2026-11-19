@@ -8,6 +8,48 @@ Status: Research in Progress / Prototype Validation
 
 
 
+## Quick start (code and data)
+
+```bash
+# 1. environment (from the repo root, inside the REE venv)
+pip install -r requirements.txt
+pip install -e .
+
+# 2. real dataset: northern Curnamona Province REE (Luo et al. 2026, DEEP-SEAM; Zenodo 10.5281/zenodo.17098677)
+python scripts/download_curnamona.py      # -> data/external/curnamona/ (md5-verified, gitignored)
+python scripts/prepare_curnamona.py --export-tifs
+
+# 3. tests (shapes, gradient flow, prior fitting, data alignment)
+pytest
+
+# 4. experiments: leave-one-deposit-out CV + full prospectivity map
+python scripts/run_experiment.py configs/shvcnn.json
+```
+
+Notebooks (thin drivers over the `geompm` package):
+
+* `notebooks/01_brs_data_prep.ipynb`: Rajasthan BRS soil survey (fixed parsing, labels, leakage, spatial CV)
+* `notebooks/02_curnamona_priors.ipynb`: Curnamona evidence layers, w and g priors
+* `notebooks/03_models_and_training.ipynb`: SHCNN / geology-aware ViT / SHVCNN sanity checks and a short training run
+
+**Dataset note.** Curnamona has 35 aligned evidence rasters (~0.2 km cells, 18,496 cells in the study area), faults and felsic granites (w), 615 multi-element rock samples (g) and **7 REE occurrences**. With so few positives, evaluation is leave-one-deposit-out with map-based metrics (area rank, success-rate curve), not a random train/test split. The fitted distance-decay exponents are weak (|k| < 0.3), so ablations with and without each prior are essential.
+
+### Model comparison grid (`configs/`)
+
+| config | architecture | hard w | geo-attention | g (FFN/head) | soft GeoLoss |
+|---|---|---|---|---|---|
+| cnn | CNN | - | - | - | - |
+| cnn_soft_only | CNN | - | - | - | yes |
+| shcnn | CNN | yes | - | head | yes |
+| vit | ViT | - | - | - | - |
+| geovit | ViT | - | product | yes | yes |
+| cnn_vit | CNN+ViT | - | - | - | - |
+| shvcnn_hard_only | CNN+ViT | yes | product | yes | - |
+| shvcnn | CNN+ViT | yes | product | yes | yes |
+| shvcnn_learned_affinity | CNN+ViT | yes | learned MLP | yes | yes |
+
+
+
 Overview
 
 
@@ -1248,57 +1290,45 @@ The objective is not simply to replace CNNs with Transformers. Instead, the rese
 
 
 
-18\.Future Repository Structure
+18\. Repository Structure
 
-
-
+```
 .
-
 ├── README.md
-
-├── docs/
-
-│   ├── report/
-
-│   ├── figures/
-
-│   └── references/
-
-├── src/
-
-│   ├── models/
-
-│   │   ├── shcnn.py
-
-│   │   ├── geology\_attention.py
-
-│   │   ├── geology\_vit.py
-
-│   │   └── shvcnn.py
-
+├── pyproject.toml                 # installable package `geompm` (pip install -e .)
+├── requirements.txt
+├── configs/                       # one JSON per model / ablation
+├── scripts/
+│   ├── download_curnamona.py      # Zenodo download + md5 check
+│   ├── prepare_curnamona.py       # build and cache the model-ready grid
+│   └── run_experiment.py          # LODO CV + full map -> experiments/results/<name>/
+├── src/geompm/
+│   ├── config.py                  # dataclass configs (data, prior, model, train)
 │   ├── geology/
-
-│   │   ├── spatial\_prior.py
-
-│   │   ├── pca\_prior.py
-
-│   │   └── geo\_loss.py
-
-│   └── utils/
-
-├── experiments/
-
-│   ├── synthetic/
-
-│   ├── baselines/
-
-│   └── ablations/
-
+│   │   ├── spatial_prior.py       # w = N d^k / m_max (Poisson-ML fit of k)
+│   │   ├── geochem_prior.py       # g: CLR -> PCA -> indicator component -> IDW grid
+│   │   └── geo_loss.py            # L = BCE + lambda * ||p - sigmoid(a w + b)||
+│   ├── models/
+│   │   ├── modulation.py          # hard constraints: F * w, l(x) * g
+│   │   ├── shcnn.py
+│   │   ├── geology_attention.py   # softmax(QK^T/sqrt(d) + alpha M)
+│   │   ├── geology_vit.py         # GeoFFN, GeoTransformerBlock, GeoViTStage, GeoViT
+│   │   ├── shvcnn.py
+│   │   └── factory.py             # build_model(cfg) for every baseline / ablation
+│   ├── data/
+│   │   ├── raster.py              # alignment, rasterisation, km distance maps
+│   │   ├── curnamona.py           # GeoGrid builder for the Curnamona REE dataset
+│   │   ├── patches.py             # patch sampling (PU labels) + dihedral augmentation
+│   │   └── brs.py                 # Rajasthan BRS survey: parsing and fold-safe features
+│   └── training/
+│       ├── trainer.py, predict.py # training loop, sliding-window map
+│       ├── evaluation.py          # area rank, success-rate curve, AUCs
+│       └── experiment.py          # leave-one-deposit-out CV
 ├── notebooks/
-
-├── configs/
-
-└── requirements.txt
+├── tests/
+├── data/                          # gitignored: raw/, external/, processed/
+└── experiments/results/           # gitignored outputs
+```
 
 
 
@@ -1462,7 +1492,7 @@ Real geological dataset
 
 
 
-Pending
+Integrated (Curnamona REE, 7 occurrences)
 
 
 
@@ -1470,7 +1500,7 @@ Dense prospectivity decoder
 
 
 
-Proposed
+Proposed (dense maps currently via sliding-window patch classification)
 
 
 
@@ -1478,7 +1508,7 @@ Ablation study
 
 
 
-Pending
+Configs ready (configs/), runs pending
 
 
 

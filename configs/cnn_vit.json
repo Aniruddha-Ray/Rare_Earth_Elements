@@ -1,0 +1,6 @@
+{
+  "name": "cnn_vit",
+  "model": {"name": "cnn_vit"},
+  "train": {"geo_lambda": 0.0},
+  "output_dir": "experiments/results"
+}

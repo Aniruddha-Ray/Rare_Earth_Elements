@@ -1,0 +1,6 @@
+{
+  "name": "cnn",
+  "model": {"name": "cnn"},
+  "train": {"geo_lambda": 0.0},
+  "output_dir": "experiments/results"
+}

@@ -12,3 +12,13 @@ torchaudio
 monai
 ipykernel
 xlrd
+# geospatial I/O and geological priors (geompm package)
+scipy
+rasterio
+geopandas
+pyogrio
+shapely
+# testing / notebooks
+pytest
+nbformat
+nbconvert

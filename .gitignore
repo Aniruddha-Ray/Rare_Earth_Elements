@@ -220,7 +220,10 @@ __marimo__/
 .data/
 
 Report.pdf
-data/
+/data/
 *.xls
 *.xlsx
 *.XLS
+
+# experiment outputs (models, rasters, results)
+experiments/results/

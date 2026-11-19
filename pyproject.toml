@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geompm"
+version = "0.1.0"
+description = "Geologically constrained CNN / Vision Transformer models for mineral prospectivity mapping"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "torch",
+    "rasterio",
+    "geopandas",
+    "pyogrio",
+    "shapely",
+    "xlrd",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "jupyter", "ipykernel", "nbformat", "matplotlib", "seaborn"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,6 @@
+{
+  "name": "geovit",
+  "model": {"name": "geovit"},
+  "train": {"geo_lambda": 0.1},
+  "output_dir": "experiments/results"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "vit",
+  "model": {"name": "vit"},
+  "train": {"geo_lambda": 0.0},
+  "output_dir": "experiments/results"
+}
