@@ -225,5 +225,6 @@ Report.pdf
 *.xlsx
 *.XLS
 
-# experiment outputs (models, rasters, results)
-experiments/results/
+# experiment outputs: keep configs, results.json, summary.csv and logs; ignore weights and rasters
+experiments/results/**/*.pt
+experiments/results/**/*.tif

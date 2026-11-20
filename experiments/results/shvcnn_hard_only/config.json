@@ -1,0 +1,81 @@
+{
+  "name": "shvcnn_hard_only",
+  "data": {
+    "root": "data/external/curnamona/EarthByte-MPM_Curnamona_REE-4bb4139/Files needed for runing/Input_Data_Layers",
+    "reference_raster": "Magnetics/SA_TMI_VRTP.tif",
+    "raster_groups": [
+      "Magnetics",
+      "Gravity",
+      "Radiometrics",
+      "Remote Sensing",
+      "DEM"
+    ],
+    "zero_is_nodata_groups": [
+      "Remote Sensing"
+    ],
+    "clip_frame": "GIS/Clip_frame.shp",
+    "deposits": "GIS/ree.shp",
+    "controlling_factors": {
+      "faults": "Geology factors/original/Archean_Early_Mesoproterozoic_Faults.shp",
+      "felsic_granite": "Geology factors/original/Felsic_granite.shp"
+    },
+    "geochem_csv": "Geochemical/ILRRPCA.csv",
+    "geochem_coords": [
+      "lon_gda94",
+      "lat_gda94"
+    ],
+    "geochem_indicators": [
+      "La",
+      "Y",
+      "Th"
+    ],
+    "geochem_n_components": 8,
+    "idw_neighbours": 12,
+    "idw_power": 2.0,
+    "cache": "data/processed/curnamona_grid.npz"
+  },
+  "prior": {
+    "n_bins": 6,
+    "combine": "mean",
+    "drop_nonnegative_k": true
+  },
+  "model": {
+    "name": "shvcnn",
+    "patch_size": 32,
+    "prior_floor": 0.1,
+    "dropout": 0.3,
+    "hidden": 128,
+    "cnn_channels": [
+      32,
+      64
+    ],
+    "stage_channels": [
+      32,
+      64,
+      128
+    ],
+    "stage_depths": [
+      1,
+      1,
+      1
+    ],
+    "num_heads": 4,
+    "mlp_ratio": 2.0,
+    "affinity": "product",
+    "vit_patch": 4
+  },
+  "train": {
+    "epochs": 40,
+    "batch_size": 64,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "geo_lambda": 0.0,
+    "pos_radius_cells": 1,
+    "neg_buffer_km": 5.0,
+    "neg_per_pos": 10,
+    "augment": true,
+    "seed": 42,
+    "device": "auto"
+  },
+  "output_dir": "experiments/results"
+}

@@ -48,6 +48,43 @@ Notebooks (thin drivers over the `geompm` package):
 | shvcnn | CNN+ViT | yes | product | yes | yes |
 | shvcnn_learned_affinity | CNN+ViT | yes | learned MLP | yes | yes |
 
+### Results: Curnamona leave-one-deposit-out (2026-11-20, one seed per config)
+
+Each of the 7 REE occurrences is held out in turn. The w prior, positive patches and negative sampling are refitted on the remaining 6. **Area rank** is the fraction of the study area scoring at least as high as the held-out deposit: lower is better, and a random map averages 0.5. The full table, with per-deposit ranks, is in `experiments/results/summary.csv`. Each config's folds are in `experiments/results/<config>/results.json`.
+
+| config | mean area rank | median | held-out in top 10% | in-sample success-rate AUC |
+|---|---|---|---|---|
+| cnn | 0.45 | 0.43 | 1/7 | 0.91 |
+| geovit | 0.46 | 0.39 | 1/7 | 0.91 |
+| vit | 0.46 | 0.43 | 0/7 | 0.93 |
+| cnn_soft_only | 0.47 | 0.44 | 0/7 | 0.93 |
+| shvcnn | 0.49 | 0.40 | 0/7 | 0.91 |
+| *random map* | *0.50* | *0.50* | *0.7/7 expected* | |
+| *g prior alone* | *0.53* | *0.65* | *0/7* | |
+| cnn_vit | 0.53 | 0.34 | 1/7 | 0.94 |
+| shcnn | 0.53 | 0.61 | 0/7 | 0.89 |
+| shvcnn_hard_only | 0.55 | 0.56 | 0/7 | 0.90 |
+| *w prior alone (refitted per fold)* | *0.55* | *0.55* | *0/7* | |
+| shvcnn_learned_affinity | 0.56 | 0.59 | 0/7 | 0.93 |
+
+**Interpretation.** No configuration predicts held-out deposits better than chance. With 7 folds the standard error of a mean area rank is about 0.11, so every row is within noise of 0.5 and the ordering carries no information. The models fit their training deposits (in-sample success-rate AUC ≈ 0.9) but do not transfer: each fold has about 30 positive patches against 0.5–2.1 M parameters. Two deposits (Gunsight, recorded as a Cu-Co-REE skarn, and Moolawatana) rank in the bottom 15–25% of the map for almost every model. Mount Gee East is found consistently. Neither geological prior alone beats random, so the hard constraints had little to inject.
+
+**Conclusion.** This is a negative result. Curnamona (7 occurrences of mixed style, weak distance-decay priors with |k| < 0.3) is too small to test whether geological constraints improve CNN/ViT prospectivity models. Next steps:
+
+1. A benchmark with many deposits, e.g. Lawley et al. (2022) sediment-hosted Zn-Pb, with hundreds of deposits.
+2. Methods for scarce labels: positive-unlabelled learning, self-supervised pretraining on the unlabelled grid, smaller models with early stopping.
+3. Several seeds per config before comparing configurations.
+
+In-sample scores (models evaluated on the deposits they were trained on) should not be compared with leave-one-out scores.
+
+Reproduce:
+```bash
+for c in cnn cnn_soft_only shcnn vit geovit cnn_vit shvcnn_hard_only shvcnn shvcnn_learned_affinity; do
+    python scripts/run_experiment.py configs/$c.json
+done
+python scripts/summarize_results.py
+```
+
 
 
 Overview
@@ -1508,7 +1545,7 @@ Ablation study
 
 
 
-Configs ready (configs/), runs pending
+Run on Curnamona (single seed): inconclusive, all configs within noise of random
 
 
 
@@ -1516,7 +1553,7 @@ Real-data quantitative evaluation
 
 
 
-Pending
+Done for Curnamona (leave-one-deposit-out): negative result; larger benchmark needed
 
 
 
